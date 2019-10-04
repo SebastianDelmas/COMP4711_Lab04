@@ -4,6 +4,8 @@
 // to add an artist
 document.getElementById("FormContainer").style.display="none";
 
+var theUL = document.querySelector('#theUL');
+
 // Used to give each UL a unique ID. Passed to the remove method to ensure the correct
 // artist is removed from the list.
 var counterID = 0;
@@ -51,14 +53,19 @@ document.addEventListener('submit', e => {
     e.preventDefault();
 
     var ulID = counterID++;
+    var liID = counterID++;
+
     var artistFirstName = getInputValue('artistNameForm');
     var artistAbout = getInputValue('aboutArtistForm');
     var artistImg = getInputValue('imageURLForm');
 
     let nodeUL = document.createElement("UL");
     nodeUL.setAttribute("id", ulID);
+
+    let newNodeUL = document.getElementById("theUL");
+    
     let node = document.createElement("LI");
-    node.setAttribute("id", "nodeID");
+    node.setAttribute("id", liID);
     let span = document.createElement("span");
     let pName = document.createElement("p");
     let pAbout = document.createElement("p");
@@ -70,7 +77,7 @@ document.addEventListener('submit', e => {
     deleteBtn.style.color = "white";
 
     deleteBtn.addEventListener("click", function(){
-        deleteArtist(ulID);
+        deleteArtist(liID);
     });
 
     imgURL.src = artistImg;
@@ -85,17 +92,64 @@ document.addEventListener('submit', e => {
     node.appendChild(deleteBtn);
     node.appendChild(imgURL);
     node.appendChild(span);
-    nodeUL.appendChild(node);
-    document.getElementById("listOfArtists").appendChild(nodeUL);
+    newNodeUL.appendChild(node);
+    
+    // document.getElementById("listOfArtists").appendChild(nodeUL);
+    
     document.getElementById("FormContainer").style.display="none";
     document.getElementById("artistForm").reset();
     console.log("Form should be hidden");
+
+    // Save the list to localStorage
+	localStorage.setItem('artistList', theUL.innerHTML);
 });
 
+// check for saved values
+var savedArtists = localStorage.getItem('artistList');
+
+// If there is any saved artists, add them to the list
+if(savedArtists)
+{
+    theUL.innerHTML = savedArtists;
+}
+
+
 // Deletes artist from the list.
-function deleteArtist(ulID)
+function deleteArtist(liID)
 {
     console.log("Lewis is barking from the delete artist fucntion");
-    document.getElementById(ulID).remove();
+    document.getElementById(liID).remove();
     
+}
+
+
+document.getElementById("searchArtistBtn").addEventListener("click", searchArtists);
+// Filtering through the List of artists
+function searchArtists() {
+    
+    // Declare variables
+    var input, filter, ul, li, a, i, txtName, txtAbout, pName, pAbout;
+    input = document.getElementById('searchText');
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("theUL");
+    li = ul.getElementsByTagName('LI');
+    benjiBarking("searchArtists Fucntion"); 
+
+    // Loop through all list items, and hide those who don't match the search query
+    for (i = 0; i < li.length; i++) {
+        pName = li[i].getElementsByTagName("p")[0];
+        pAbout = li[i].getElementsByTagName("p")[1];
+        txtName = pName.textContent;
+        txtAbout = pAbout.textContent;
+
+        console.log("Name: " + txtName + " About: " + txtAbout);
+
+        if (txtName.toUpperCase().indexOf(filter) > -1 || txtAbout.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+            console.log("text found!");
+        } else {
+            li[i].style.display = "none";
+            console.log("text not found");
+        }
+  }
 }
